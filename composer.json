@@ -1,5 +1,5 @@
 {
-    "name": "aidenbradley/drupal-test-support",
+    "name": "aidenbradley/test-support",
     "description": "Provides various traits to help test setup and assertions in Drupal Kernel tests",
     "type": "library",
     "require": {
