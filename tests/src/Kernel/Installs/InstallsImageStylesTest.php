@@ -10,7 +10,7 @@ class InstallsImageStylesTest extends KernelTestBase
 {
     use InstallsImageStyles;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,6 +41,7 @@ class InstallsImageStylesTest extends KernelTestBase
 
         $this->installImageStyles('large');
 
+        /** @var array<mixed> $imageStyles */
         $imageStyles = $imageStyleStorage->loadMultiple();
 
         $this->assertNotEmpty($imageStyles);
@@ -69,11 +70,12 @@ class InstallsImageStylesTest extends KernelTestBase
 
         $this->installImageStyles($imageStylesToInstall);
 
+        /** @var array<ImageStyle> $imageStyles */
         $imageStyles = $imageStyleStorage->loadMultiple();
 
         $this->assertNotEmpty($imageStyles);
 
-        $imageStyleIds = array_map(function(ImageStyle $imageStyle) {
+        $imageStyleIds = array_map(function (ImageStyle $imageStyle) {
             return $imageStyle->id();
         }, $imageStyles);
 

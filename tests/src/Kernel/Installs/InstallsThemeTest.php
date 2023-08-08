@@ -9,19 +9,13 @@ class InstallsThemeTest extends KernelTestBase
 {
     use InstallsTheme;
 
-    protected $strictConfigSchema = false;
-
     /** @test */
     public function installs_theme(): void
     {
         $this->assertEmpty($this->container->get('theme_handler')->listInfo());
 
-        $this->installTheme('seven');
+        $this->installThemes('stark');
 
-        $this->assertArrayHasKey('seven', $this->container->get('theme_handler')->listInfo());
-
-        $this->installTheme('bartik');
-
-        $this->assertArrayHasKey('bartik', $this->container->get('theme_handler')->listInfo());
+        $this->assertArrayHasKey('stark', $this->container->get('theme_handler')->listInfo());
     }
 }

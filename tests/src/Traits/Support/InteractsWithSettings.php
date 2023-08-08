@@ -3,6 +3,7 @@
 namespace Drupal\Tests\test_support\Traits\Support;
 
 use Drupal\Core\Site\Settings;
+use PHPUnit\Framework\Assert;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -14,47 +15,58 @@ trait InteractsWithSettings
     /** @var string */
     private $settingsLocation = '/sites/default/settings.php';
 
-    /** @var Settings|null  */
+    /** @var Settings|null */
     private $settings = null;
 
     public function getConfigurationDirectory(): string
     {
         $directory = $this->getSettings()->get('config_sync_directory');
 
+        if (is_string($directory) === false) {
+            Assert::fail('Could not resolve configuration directory');
+        }
+
         return $this->appRoot() . '/' . ltrim($directory, '/');
     }
 
     protected function getSettings(): Settings
     {
-        if (isset($this->settings) === false) {
-            $this->temporarilySupressErrors(function() {
-                $this->loadSettings();
+        if ($this->settings instanceof Settings === false) {
+            /** @var Settings $settings */
+            $settings = $this->temporarilySupressErrors(function () {
+                return $this->loadSettings();
             });
+
+            $this->settings = $settings;
         }
 
         return $this->settings;
     }
 
-    private function loadSettings(): void
+    private function loadSettings(): Settings
     {
         if ($this->autoDiscoverSettings) {
-            $this->settings = new Settings($this->loadSettingsFromFinder());
-
-            return;
+            return new Settings($this->loadSettingsFromFinder());
         }
 
-        $this->settings = new Settings($this->loadSettingsFromSitesDirectory());
+        return new Settings($this->loadSettingsFromSitesDirectory());
     }
 
+    /** @return mixed[] */
     private function loadSettingsFromSitesDirectory(): array
     {
         $settings = [];
 
-        require $this->appRoot() . '/' . ltrim($this->settingsLocation, '/');
+        $settingsFileLocation = $this->appRoot() . '/' . ltrim($this->settingsLocation, '/');
+
+        if (file_exists($settingsFileLocation)) {
+            require $settingsFileLocation;
+        }
 
         return $settings;
     }
 
+    /** @return mixed[] */
     private function loadSettingsFromFinder(): array
     {
         $settings = [];
@@ -63,7 +75,7 @@ trait InteractsWithSettings
             ->ignoreUnreadableDirs()
             ->ignoreDotFiles(true)
             ->name('settings.php')
-            ->filter(function(SplFileInfo $file) {
+            ->filter(function (SplFileInfo $file) {
                 return str_contains($file->getPathname(), 'simpletest') === false;
             })
             ->in($this->appRoot());
@@ -91,6 +103,13 @@ trait InteractsWithSettings
 
     private function appRoot(): string
     {
+        /** @phpstan-ignore-next-line */
+        if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
+            /** @phpstan-ignore-next-line */
+            return $this->container->getParameter('app.root');
+        }
+
+        /** @phpstan-ignore-next-line */
         return $this->container->get('app.root');
     }
 }

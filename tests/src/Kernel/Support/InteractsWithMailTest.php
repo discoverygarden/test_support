@@ -17,11 +17,12 @@ class InteractsWithMailTest extends KernelTestBase
 
     private const NO_REPLY = null;
 
+    /** @var string[] */
     protected static $modules = [
         'test_support_mail',
     ];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -61,7 +62,7 @@ class InteractsWithMailTest extends KernelTestBase
 
         $this->assertNotEmpty($this->getMailSentTo('hello@example.com'));
 
-        $this->assertMailSentTo('hello@example.com', function(TestMail $mail) {
+        $this->assertMailSentTo('hello@example.com', function (TestMail $mail) {
             $mail->assertSentTo('hello@example.com');
             $mail->assertSubject('Hello');
         });
@@ -76,7 +77,7 @@ class InteractsWithMailTest extends KernelTestBase
 
         $this->assertNotEmpty($this->getMailWithSubject('User Registration'));
 
-        $this->assertMailSentWithSubject('User Registration', function(TestMail $mail) {
+        $this->assertMailSentWithSubject('User Registration', function (TestMail $mail) {
             $mail->assertSentTo('hello@example.com');
         });
     }
@@ -91,7 +92,7 @@ class InteractsWithMailTest extends KernelTestBase
 
         $this->assertNotEmpty($this->getMailWithSubject('User Registration'));
 
-        $this->assertMailSentWithSubject('User Registration', function(TestMail $mail) {
+        $this->assertMailSentWithSubject('User Registration', function (TestMail $mail) {
             if ($mail->getTo() === 'hello@example.com') {
                 $mail->assertBody('Thanks for registering!');
             }
@@ -126,6 +127,7 @@ class InteractsWithMailTest extends KernelTestBase
         $this->assertNoMailSent();
     }
 
+    /** @param array<mixed> $params */
     private function sendMail(string $to, string $subject, string $body, array $params = []): void
     {
         $state = $this->container->get('state');
@@ -139,8 +141,8 @@ class InteractsWithMailTest extends KernelTestBase
             $to,
             'en',
             $params,
-            static::NO_REPLY,
-            static::SEND_MAIL
+            self::NO_REPLY,
+            self::SEND_MAIL
         );
     }
 }

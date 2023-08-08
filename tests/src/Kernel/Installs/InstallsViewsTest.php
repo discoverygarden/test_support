@@ -12,7 +12,7 @@ class InstallsViewsTest extends KernelTestBase
 
     protected $strictConfigSchema = false;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -51,6 +51,7 @@ class InstallsViewsTest extends KernelTestBase
 
         $this->installViews('media');
 
+        /** @var array<mixed> $views */
         $views = $viewStorage->loadMultiple();
 
         $this->assertNotEmpty($views);

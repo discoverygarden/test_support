@@ -10,11 +10,12 @@ class InteractsWithLanguagesTest extends KernelTestBase
 {
     use InteractsWithLanguages;
 
+    /** @var string[] */
     protected static $modules = [
         'system',
     ];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

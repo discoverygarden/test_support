@@ -10,13 +10,14 @@ class InstallsEntityTypesTest extends KernelTestBase
 {
     use InstallsEntityTypes;
 
+    /** @var string[] */
     protected static $modules = [
         'system',
         'node',
         'user',
     ];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -36,6 +37,7 @@ class InstallsEntityTypesTest extends KernelTestBase
 
         $this->installBundle('node', 'page');
 
+        /** @var array<mixed> $nodeTypes */
         $nodeTypes = $nodeTypeStorage->loadMultiple();
 
         $this->assertNotEmpty($nodeTypes);
@@ -66,6 +68,7 @@ class InstallsEntityTypesTest extends KernelTestBase
     {
         $entityTypeManager = $this->container->get('entity_type.manager');
 
+        /** @var \Drupal\Core\Entity\EntityTypeInterface $nodeEntityTypeDefinition */
         $nodeEntityTypeDefinition = $entityTypeManager->getDefinition('node');
 
         $this->assertFalse($this->container->get('database')->schema()->tableExists(

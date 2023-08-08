@@ -9,31 +9,19 @@ class DecoratedListener
     /** @var \Symfony\Component\EventDispatcher\EventSubscriberInterface|null */
     private $listener;
 
-    /** @var array|null */
-    private $callable;
+    /** @var string|null */
+    private $serviceId;
 
-    public static function createFromArray(array $listener): self
-    {
-        return new self($listener);
-    }
-
+    /** @param array{0?: \Symfony\Component\EventDispatcher\EventSubscriberInterface, 1?: string, 2?: string} $listener */
     public function __construct(array $listener)
     {
         $this->listener = $listener[0] ?? null;
-        $this->callable = $listener[1] ?? null;
+        $this->serviceId = $listener[2] ?? null;
     }
 
     public function getServiceId(): ?string
     {
-        if (isset($this->listener) === false) {
-            return null;
-        }
-
-        if (property_exists($this->listener, '_serviceId') === false) {
-            return null;
-        }
-
-        return $this->listener->_serviceId;
+        return $this->serviceId;
     }
 
     public function getClass(): ?string
@@ -45,12 +33,13 @@ class DecoratedListener
         return get_class($this->listener);
     }
 
+    /** @param array<string>|array<class-string> $listeners */
     public function inList(array $listeners): bool
     {
         return in_array($this->getClass(), $listeners) || in_array($this->getServiceId(), $listeners);
     }
 
-    public function getOriginal(): EventSubscriberInterface
+    public function getOriginal(): ?EventSubscriberInterface
     {
         return $this->listener;
     }

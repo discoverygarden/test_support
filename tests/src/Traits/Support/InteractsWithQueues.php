@@ -7,7 +7,7 @@ use Drupal\Core\Queue\QueueInterface;
 /** To be used in kernel tests */
 trait InteractsWithQueues
 {
-    /** @var array */
+    /** @var QueueInterface[] */
     private $queues = [];
 
     /** @var bool */
@@ -26,6 +26,7 @@ trait InteractsWithQueues
         return $this->getQueueByName($queueName, $this->useReliableQueue);
     }
 
+    /** @param mixed $data */
     public function addToQueue(string $queueName, $data): self
     {
         $this->getQueue($queueName)->createItem($data);

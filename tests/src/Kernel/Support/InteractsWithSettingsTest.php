@@ -2,12 +2,32 @@
 
 namespace Drupal\Tests\test_support\Kernel\Support;
 
+use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Tests\test_support\Traits\Support\InteractsWithSettings;
+use Symfony\Component\DependencyInjection\Reference;
 
 class InteractsWithSettingsTest extends KernelTestBase
 {
     use InteractsWithSettings;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $container = new ContainerBuilder();
+
+        $container->set('kernel', $this->container->get('kernel'));
+
+        /** @phpstan-ignore-next-line */
+        if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
+            $container->setParameter('app.root', __DIR__);
+        } else {
+            $container->set('app.root', new Reference(__DIR__));
+        }
+
+        $this->container = $container;
+    }
 
     /**
      * @test
@@ -16,13 +36,21 @@ class InteractsWithSettingsTest extends KernelTestBase
      */
     public function supresses_errors_when_requiring_settings(): void
     {
-        $this->container->set('app.root', __DIR__);
         $this->settingsLocation = '/__fixtures__/settings/fixture.settings.php';
 
-        $this->assertEquals(
-            $this->container->get('app.root') . '/test/config/directory',
-            $this->getConfigurationDirectory()
-        );
+        if (str_starts_with(\Drupal::VERSION, '10.')) {
+            /** @var string $appRoot */
+            $appRoot = $this->container->getParameter('app.root');
+
+            $expectedConfigurationDirectory = $appRoot . '/test/config/directory';
+
+            $this->assertEquals($expectedConfigurationDirectory, $this->getConfigurationDirectory());
+        } else {
+            /** @phpstan-ignore-next-line */
+            $expectedConfigurationDirectory = $this->container->get('app.root') . '/test/config/directory';
+
+            $this->assertEquals($expectedConfigurationDirectory, $this->getConfigurationDirectory());
+        }
     }
 
     /**
@@ -32,8 +60,6 @@ class InteractsWithSettingsTest extends KernelTestBase
      */
     public function auto_discovers_settings(): void
     {
-        $this->markTestSkipped('To be ran locally against a drupal installation that has a valid settings.php');
-
         $this->assertNull($this->getSettings()->get('auto_discovered'));
 
         // force InteractsWithSettings to find settings.php again

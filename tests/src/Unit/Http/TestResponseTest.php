@@ -294,9 +294,9 @@ class TestResponseTest extends UnitTestCase
             'example' => 'example',
         ];
 
-        $response = TestResponse::fromBaseResponse(
-            JsonResponse::create($content)
-        );
+        $jsonResponse = new JsonResponse($content);
+
+        $response = TestResponse::fromBaseResponse($jsonResponse);
 
         $response->assertJsonContent($content);
     }
@@ -310,20 +310,27 @@ class TestResponseTest extends UnitTestCase
             'example' => 'example',
         ];
 
-        $response = TestResponse::fromBaseResponse(
-            JsonResponse::create($content)
-        );
+        $jsonResponse = new JsonResponse($content);
 
-        $response->assertJsonContentContains(['key' => 'value']);
-        $response->assertJsonContentContains(['another_key' => 'another_value']);
-        $response->assertJsonContentContains(['example' => 'example']);
+        $response = TestResponse::fromBaseResponse($jsonResponse);
+
+        $response->assertJsonContentContains([
+            'key' => 'value',
+        ]);
+        $response->assertJsonContentContains([
+            'another_key' => 'another_value',
+        ]);
+        $response->assertJsonContentContains([
+            'example' => 'example',
+        ]);
     }
 
-    /** @param mixed $content */
+    /** @param resource|string|null $content */
     private function createMockResponse(int $statusCode, $content = ''): TestResponse
     {
-        return TestResponse::fromBaseResponse(
-            Response::create($content, $statusCode)
-        );
+        /** @phpstan-ignore-next-line */
+        $symfonyResponse = new Response($content, $statusCode);
+
+        return TestResponse::fromBaseResponse($symfonyResponse);
     }
 }

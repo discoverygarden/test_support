@@ -10,14 +10,14 @@ use Drupal\Tests\test_support\Traits\Installs\InstallsModules;
  * The idea is to expand this class to provide default coverage for modules where all
  * they need to do is extend this kernel test base and provide their module name
  */
-abstract class EnableModuleKernelTest extends KernelTestBase
+abstract class EnableModuleKernelTestBase extends KernelTestBase
 {
     use InstallsModules;
 
-    /** @var array */
+    /** @var string[] */
     private $entityTypeDefinitionsPreInstall;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -31,14 +31,14 @@ abstract class EnableModuleKernelTest extends KernelTestBase
     /** @test */
     public function install_module_entity_definitions(): void
     {
-        $this->installModuleWithDependencies($this->module());
+        $this->enableModuleWithDependencies($this->module());
 
         $moduleEntityDefinitions = array_diff(
             array_keys($this->container->get('entity_type.manager')->getDefinitions()),
             $this->entityTypeDefinitionsPreInstall,
         );
 
-        foreach($moduleEntityDefinitions as $moduleEntityDefinition) {
+        foreach ($moduleEntityDefinitions as $moduleEntityDefinition) {
             $this->installEntitySchema($moduleEntityDefinition);
         }
 

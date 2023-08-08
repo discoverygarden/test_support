@@ -10,7 +10,7 @@ class InstallsMenusTest extends KernelTestBase
 {
     use InstallsMenus;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -49,6 +49,7 @@ class InstallsMenusTest extends KernelTestBase
 
         $menus = $menuStorage->loadMultiple();
 
+        /** @var array<mixed> $menus */
         $this->assertNotEmpty($menus);
 
         $this->assertInstanceOf(Menu::class, $menuStorage->load('footer'));

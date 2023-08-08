@@ -9,44 +9,86 @@ use Carbon\Carbon;
  * @method void minutes(?\Closure $callback = null)
  * @method void hours(?\Closure $callback = null)
  * @method void days(?\Closure $callback = null)
+ * @method void weeks(?\Closure $callback = null)
  * @method void months(?\Closure $callback = null)
  * @method void years(?\Closure $callback = null)
  */
 class Tardis
 {
-    /** @var int */
+    /**
+     * @phpstan-ignore-next-line
+     * @var \Drupal\Component\DependencyInjection\ContainerInterface|\Drupal\Core\DependencyInjection\ContainerBuilder @container
+     */
+    private $container;
+
+    /** @var int|null */
     private $travel;
 
-    public static function createFromTravel(?int $travel = null): self
+    /**
+     * @phpstan-ignore-next-line
+     * @param  \Drupal\Component\DependencyInjection\ContainerInterface|\Drupal\Core\DependencyInjection\ContainerBuilder  $container
+     */
+    public static function createFromTravel($container, ?int $travel = null): self
     {
-        return new self($travel);
+        return new self($container, $travel);
     }
 
-    public function __construct(?int $travel = null)
+    /**
+     * @phpstan-ignore-next-line
+     * @param  \Drupal\Component\DependencyInjection\ContainerInterface|\Drupal\Core\DependencyInjection\ContainerBuilder  $container
+     */
+    public function __construct($container, ?int $travel = null)
     {
+        $this->container = $container;
         $this->travel = $travel;
     }
 
-    public function back(): Carbon
+    public function back(): void
     {
         Carbon::setTestNow();
-
-        return Carbon::now();
     }
 
     public function toTimezone(string $timezone, ?callable $callback = null): void
     {
-        Carbon::setTestNowAndTimezone(
-            Carbon::now()->setTimezone($timezone)
-        );
+        $currentTimezone = Carbon::now()->getTimezone()->getName();
+
+        $this->setTimezone($timezone);
 
         if ($callback === null) {
             return;
         }
 
         $this->freezeTime($callback);
+
+        $this->setTimezone($currentTimezone);
     }
 
+    /** @test */
+    public function freezeTime(?callable $callback = null): void
+    {
+        if (is_callable($callback) === false) {
+            return;
+        }
+
+        $callback();
+
+        $this->back();
+    }
+
+    private function setTimezone(string $timezone): void
+    {
+        Carbon::setTestNowAndTimezone(
+            Carbon::now()->setTimezone($timezone)
+        );
+
+        /** @phpstan-ignore-next-line */
+        $this->container->get('config.factory')
+            ->getEditable('system.date')
+            ->set('timezone.default', $timezone)
+            ->save();
+    }
+
+    /** @param array{0: ?callable} $args */
     public function __call(string $method, array $args): void
     {
         if ($this->travel === null) {
@@ -65,17 +107,5 @@ class Tardis
         }
 
         $this->freezeTime($args[0]);
-    }
-
-    /** @test */
-    public function freezeTime(?callable $callback = null): void
-    {
-        if (is_callable($callback) === false) {
-            return;
-        }
-
-        $callback();
-
-        $this->back();
     }
 }

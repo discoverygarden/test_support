@@ -13,63 +13,87 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ResolveRequest implements ContainerInjectionInterface
 {
-    /** @var Request */
+    /** @var Request|null */
     private $request;
 
-    public static function create(ContainerInterface $container)
+    public static function create(ContainerInterface $container): self
     {
         return new self(
-            $container->get('request_stack')->getCurrentRequest(),
+            $container->get('request_stack')->getCurrentRequest()
         );
     }
 
-    public function __construct(Request $request)
+    public function __construct(?Request $request)
     {
         $this->request = $request;
     }
 
     public function __invoke(): Response
     {
-        return Response::create('content');
+        $content = '';
+
+        if ($this->request === null) {
+            return new JsonResponse();
+        }
+
+        if ($this->request->query->has('headers')) {
+            $content = $this->request->headers->getIterator()->getArrayCopy();
+        }
+
+        return new JsonResponse($content);
     }
 
     public function xmlHttpOnly(): Response
     {
+        if ($this->request === null) {
+            throw new NotFoundHttpException();
+        }
+
         if ($this->request->isXmlHttpRequest() === false) {
             throw new NotFoundHttpException();
         }
 
-        return Response::create();
+        return new Response();
     }
 
     public function json(): Response
     {
+        if ($this->request === null) {
+            throw new NotFoundHttpException();
+        }
+
         if ($this->request->getContentType() !== 'json') {
             throw new NotFoundHttpException();
         }
 
-        return JsonResponse::create();
+        return new JsonResponse();
     }
 
     public function redirect(?string $redirectRoute = null): Response
     {
         if ($redirectRoute !== null) {
-            return RedirectResponse::create(
+            $redirectResponse = new RedirectResponse(
                 Url::fromRoute($redirectRoute)->toString(true)->getGeneratedUrl()
             );
+
+            return $redirectResponse;
         }
 
-        return Response::create();
+        return new Response();
     }
 
     public function redirectFromExample(?string $redirectRoute = null): Response
     {
+        if ($this->request === null || $redirectRoute === null) {
+            return new Response();
+        }
+
         if ($this->request->headers->get('referer') === 'https://example.com/from') {
-            return RedirectResponse::create(
+            return new RedirectResponse(
                 Url::fromRoute($redirectRoute)->toString(true)->getGeneratedUrl()
             );
         }
 
-        return Response::create();
+        return new Response();
     }
 }

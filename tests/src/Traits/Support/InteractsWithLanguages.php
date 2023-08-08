@@ -3,15 +3,17 @@
 namespace Drupal\Tests\test_support\Traits\Support;
 
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\language\ConfigurableLanguageInterface;
 use Drupal\Tests\test_support\Traits\Installs\InstallsExportedConfig;
+use PHPUnit\Framework\Assert;
 
 trait InteractsWithLanguages
 {
     use InstallsExportedConfig;
 
-    /** @var array */
+    /** @var string[] */
     protected $installedLanguages = [
-        'en' // EN is installed by default
+        'en', // EN is installed by default
     ];
 
     /** @var bool */
@@ -22,17 +24,20 @@ trait InteractsWithLanguages
         return $this->container->get('language_manager');
     }
 
-    /** @param string|array $langcode */
+    /** @param string|string[] $langcodes */
     protected function installLanguage($langcodes): void
     {
         $this->setupLanguageDependencies();
 
-        foreach ((array)$langcodes as $langcode) {
+        foreach ((array) $langcodes as $langcode) {
             $this->installExportedConfig('language.entity.' . $langcode);
         }
+
+        /** @phpstan-ignore-next-line */
+        $this->container->get('kernel')->rebuildContainer();
     }
 
-    /** @param \Drupal\Language\Entity\ConfigurableLanguage|string */
+    /** @param ConfigurableLanguageInterface|string $language */
     protected function setCurrentLanguage($language, ?string $prefix = null): void
     {
         $this->setupLanguageDependencies();
@@ -47,6 +52,10 @@ trait InteractsWithLanguages
             )->load($language);
         }
 
+        if ($language instanceof ConfigurableLanguageInterface === false) {
+            Assert::fail('Could not install language');
+        }
+
         $this->config('system.site')
             ->set('langcode', $language->getId())
             ->set('default_langcode', $language->getId())
@@ -55,6 +64,7 @@ trait InteractsWithLanguages
         if ($prefix !== null) {
             $languageNegotiation = $this->config('language.negotiation');
 
+            /** @var array<string, string> $prefixes */
             $prefixes = $languageNegotiation->get('url.prefixes');
 
             $prefixes[$language->id()] = $prefix;
@@ -64,11 +74,9 @@ trait InteractsWithLanguages
 
         $this->container->get('language.default')->set($language);
 
-        $this->container->get('kernel')->rebuildContainer();
-
         $this->languageManager()->reset();
 
-        $this->installedLanguages[$language->getId()] = $language;
+        $this->installedLanguages[] = $language->getId();
     }
 
     private function setupLanguageDependencies(): void
@@ -77,10 +85,11 @@ trait InteractsWithLanguages
             return;
         }
 
+        $this->installLanguageModule = true;
+
         $this->enableModules(['language']);
         $this->installConfig('language');
         $this->installEntitySchema('configurable_language');
-
-        $this->installLanguageModule = true;
+        $this->setCurrentLanguage('en');
     }
 }

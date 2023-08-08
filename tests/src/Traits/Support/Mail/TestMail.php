@@ -6,14 +6,16 @@ use PHPUnit\Framework\Assert;
 
 class TestMail
 {
-    /** @var array */
+    /** @var mixed[] */
     protected $values;
 
+    /** @param mixed[] $values */
     public function __construct(array $values)
     {
         $this->values = $values;
     }
 
+    /** @param mixed[] $values */
     public static function createFromValues(array $values): self
     {
         return new static($values);
@@ -45,10 +47,16 @@ class TestMail
 
     public function getBody(): ?string
     {
-        return preg_replace('/\s+/', ' ', trim($this->getValue('body')));
+        $body = $this->getValue('body');
+
+        if ($body === null) {
+            return null;
+        }
+
+        return preg_replace('/\s+/', ' ', trim($body));
     }
 
-    /** @param mixed body */
+    /** @param  mixed  $body */
     public function assertBody($body): self
     {
         Assert::assertEquals($body, $this->getBody());
@@ -59,6 +67,10 @@ class TestMail
     /** @return mixed */
     public function getParameter(string $param)
     {
+        if (isset($this->values['params']) === false || is_array($this->values['params']) === false) {
+            return null;
+        }
+
         if (isset($this->values['params'][$param]) === false) {
             return null;
         }
@@ -84,14 +96,20 @@ class TestMail
         return $this;
     }
 
+    /** @return mixed[] */
     public function toArray(): array
     {
         return $this->values;
     }
 
-    /** @return mixed */
-    private function getValue(string $keyName)
+    private function getValue(string $keyName): ?string
     {
-        return $this->values[$keyName] ?? null;
+        $value = $this->values[$keyName];
+
+        if (is_string($value) === false) {
+            return null;
+        }
+
+        return $value;
     }
 }

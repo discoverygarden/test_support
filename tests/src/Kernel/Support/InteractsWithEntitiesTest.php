@@ -12,13 +12,14 @@ class InteractsWithEntitiesTest extends KernelTestBase
 {
     use InteractsWithEntities;
 
+    /** @var string[] */
     protected static $modules = [
         'system',
         'node',
         'user',
     ];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -67,26 +68,31 @@ class InteractsWithEntitiesTest extends KernelTestBase
     /** @test */
     public function refresh_entity(): void
     {
+        /** @var \Drupal\node\Entity\Node $node */
         $node = $this->createEntity('node', [
             'nid' => 1000,
             'title' => 'Example Title',
             'type' => 'page',
         ]);
 
-        $this->assertEquals('Example Title', $node->title->value);
+        $this->assertEquals('Example Title', $node->get('title')->getString());
 
-        $this->updateNodeTitle();
+        $this->updateNodeTitle($node->id());
 
         $this->refreshEntity($node);
 
-        $this->assertEquals('Example Title Updated', $node->title->value);
+        $this->assertEquals('Example Title Updated', $node->get('title')->getString());
     }
 
-    private function updateNodeTitle(): void
+    /** @param int|string|null $nodeId */
+    private function updateNodeTitle($nodeId): void
     {
-        $this->storage('node')
-            ->load(1000)
-            ->set('title', 'Example Title Updated')
-            ->save();
+        $node = $this->storage('node')->load($nodeId);
+
+        if ($node instanceof Node === false) {
+            $this->fail('Could not load node with ID: ' . $nodeId);
+        }
+
+        $node->set('title', 'Example Title Updated')->save();
     }
 }

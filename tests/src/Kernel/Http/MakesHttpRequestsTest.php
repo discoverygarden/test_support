@@ -5,13 +5,12 @@ namespace Drupal\Tests\test_support\Kernel\Http;
 use Drupal\Core\Url;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Tests\test_support\Traits\Http\MakesHttpRequests;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 class MakesHttpRequestsTest extends KernelTestBase
 {
     use MakesHttpRequests;
 
+    /** @var string[] */
     protected static $modules = [
         'test_support_http',
     ];
@@ -142,23 +141,43 @@ class MakesHttpRequestsTest extends KernelTestBase
     }
 
     /** @test */
-    public function mock_response(): void
+    public function as_form(): void
     {
-        $fakeResponseData = [
-            'fake' => 'data',
-        ];
+        $route = $this->route('route.post', [], [
+            'query' => [
+                'headers' => true,
+            ],
+        ]);
 
-        $this->fakeResponse('https://www.example.com/fake', JsonResponse::create($fakeResponseData));
-        $response = $this->get('https://www.example.com/fake');
-        $response->assertJsonContent($fakeResponseData);
-
-        $this->fakeResponse($this->route('route.get'), JsonResponse::create($fakeResponseData));
-        $response = $this->get($this->route('route.get'));
-        $response->assertJsonContent($fakeResponseData);
+        $this->asForm()->post($route)->assertJsonContentContains([
+            'content-type' => [
+                'application/x-www-form-urlencoded',
+            ],
+        ]);
     }
 
+    /** @test */
+    public function as_json(): void
+    {
+        $route = $this->route('route.post', [], [
+            'query' => [
+                'headers' => true,
+            ],
+        ]);
+
+        $this->asJson()->post($route)->assertJsonContentContains([
+            'content-type' => [
+                'application/json',
+            ],
+        ]);
+    }
+
+    /**
+     * @param array<mixed> $parameters
+     * @param array<mixed> $options
+     */
     private function route(string $routeName, array $parameters = [], array $options = []): string
     {
-        return Url::fromRoute(...func_get_args())->toString(true)->getGeneratedUrl();
+        return Url::fromRoute($routeName, $parameters, $options)->toString(true)->getGeneratedUrl();
     }
 }

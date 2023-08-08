@@ -12,8 +12,6 @@ class InstallsModulesTest extends KernelTestBase
     /** @test */
     public function installs_dependencies(): void
     {
-        $moduleHandler = $this->container->get('module_handler');
-
         $expectedDependencies = [
             'system',
             'link',
@@ -22,14 +20,57 @@ class InstallsModulesTest extends KernelTestBase
             'image',
         ];
 
-        foreach ($expectedDependencies as $dependency) {
-            $this->assertFalse($moduleHandler->moduleExists($dependency));
+        $this->assertModulesDisabled($expectedDependencies)
+            ->enableModuleWithDependencies('test_support_dependencies')
+            ->assertModulesEnabled($expectedDependencies);
+    }
+
+    /** @test */
+    public function handles_nested_mutual_dependencies(): void
+    {
+        $expectedDependencies = [
+            'system',
+            'link',
+            'text',
+            'file',
+            'image',
+            'test_support_dependencies',
+            'test_support_mutual_dependency_one',
+            'test_support_mutual_dependency_two',
+            'field',
+            'filter',
+        ];
+
+        $this->assertModulesDisabled($expectedDependencies);
+
+        $this->enableModuleWithDependencies('test_support_mutual_dependency_one');
+
+        $this->assertModulesEnabled($expectedDependencies);
+    }
+
+    /** @param string|string[] $modules */
+    private function assertModulesEnabled($modules): self
+    {
+        foreach ((array) $modules as $module) {
+            $this->assertTrue(
+                $this->container->get('module_handler')->moduleExists($module),
+                $module . ' is not enabled'
+            );
         }
 
-        $this->installModuleWithDependencies('test_support_dependencies');
+        return $this;
+    }
 
-        foreach ($expectedDependencies as $dependency) {
-            $this->assertTrue($moduleHandler->moduleExists($dependency));
+    /** @param string|string[] $modules */
+    private function assertModulesDisabled($modules): self
+    {
+        foreach ((array) $modules as $module) {
+            $this->assertFalse(
+                $this->container->get('module_handler')->moduleExists($module),
+                $module . ' is not disabled'
+            );
         }
+
+        return $this;
     }
 }

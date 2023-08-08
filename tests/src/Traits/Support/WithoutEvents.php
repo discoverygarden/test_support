@@ -2,35 +2,28 @@
 
 namespace Drupal\Tests\test_support\Traits\Support;
 
-use Illuminate\Support\Collection;
-use Prophecy\Argument;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Drupal\Tests\test_support\Traits\Support\Contracts\TestEventDispatcher;
+use Drupal\Tests\test_support\Traits\Support\Decorators\EventDispatcher\DecoratedEventDispatcher;
 
 trait WithoutEvents
 {
-    /** @var array */
-    private $firedEvents;
+    /** @var string[]|class-string[] */
+    private $expectedEvents = [];
 
-    /** @var array */
-    private $expectedEvents;
-
-    /** @var array */
-    private $nonExpectedEvents;
+    /** @var string[]|class-string[] */
+    private $nonExpectedEvents = [];
 
     /** Mock the event dispatcher. All dispatched events are collected */
     public function withoutEvents(): self
     {
-        $dispatcher = $this->prophesize(EventDispatcherInterface::class);
-
-        $dispatcher->dispatch(Argument::any(), Argument::any())->will([
-            $this, 'registerDispatchedEvent'
-        ]);
-
-        $this->container->set('event_dispatcher', $dispatcher->reveal());
+        $this->container->set('event_dispatcher', DecoratedEventDispatcher::create(
+            $this->container->get('event_dispatcher')
+        ));
 
         return $this;
     }
 
+    /** @param string|string[]|class-string[] $events */
     public function expectsEvents($events): self
     {
         $this->expectedEvents = (array) $events;
@@ -38,6 +31,7 @@ trait WithoutEvents
         return $this->withoutEvents();
     }
 
+    /** @param string|string[]|class-string[] $events */
     public function doesntExpectEvents($events): self
     {
         $this->nonExpectedEvents = (array) $events;
@@ -45,9 +39,10 @@ trait WithoutEvents
         return $this->withoutEvents();
     }
 
+    /** @param class-string|string|null $event */
     public function assertDispatched($event, ?callable $callback = null): self
     {
-        $firedEvents = $this->getFiredEvents($event);
+        $firedEvents = $this->eventDispatcher()->getFiredEvents($event);
 
         $this->assertTrue($firedEvents->isNotEmpty(), $event . ' event was not dispatched');
 
@@ -58,27 +53,22 @@ trait WithoutEvents
         return $this;
     }
 
-    public function assertNotDispatched($event): self
+    public function assertNotDispatched(?string $event): self
     {
-        $this->assertTrue($this->getFiredEvents($event)->isEmpty(), $event . ' event was dispatched');
+        $this->assertTrue($this->eventDispatcher()->getFiredEvents($event)->isEmpty(), $event . ' event was dispatched');
 
         return $this;
     }
 
-    public function registerDispatchedEvent($arguments): void
-    {
-        $this->firedEvents[$arguments[1]] = $arguments[0];
-    }
-
     protected function tearDown(): void
     {
-        if (isset($this->expectedEvents)) {
+        if ($this->expectedEvents !== []) {
             foreach ($this->expectedEvents as $event) {
                 $this->assertDispatched($event);
             }
         }
 
-        if (isset($this->nonExpectedEvents)) {
+        if ($this->nonExpectedEvents !== []) {
             foreach ($this->nonExpectedEvents as $event) {
                 $this->assertNotDispatched($event);
             }
@@ -86,16 +76,10 @@ trait WithoutEvents
 
         parent::teardown();
     }
-    /**
-     * Get fired events.
-     * You can optionally pass an event name or event class to filter the list against
-     */
-    public function getFiredEvents(?string $event = null): Collection
+
+    private function eventDispatcher(): TestEventDispatcher
     {
-        return collect($this->firedEvents)->when($event, function(Collection $events, $event) {
-            return $events->filter(function($object, string $name) use ($event) {
-                return get_class($object) === $event || $name === $event;
-            });
-        });
+        /** @phpstan-ignore-next-line */
+        return $this->container->get('event_dispatcher');
     }
 }

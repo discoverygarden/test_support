@@ -2,39 +2,101 @@
 
 namespace Drupal\Tests\test_support\Traits\Installs;
 
+use Drupal\Core\Extension\Dependency;
 use Drupal\Core\Serialization\Yaml;
+use PHPUnit\Framework\Assert;
 
 trait InstallsModules
 {
-    public function installModuleWithDependencies($modules): self
+    /** @var string[] */
+    private $modulesToInstall = [];
+
+    /** @param string|string[] $modules */
+    public function enableModuleWithDependencies($modules): self
     {
+        $this->modulesToInstall = (array) $modules;
+
         foreach ((array) $modules as $module) {
-            $fileLocation = drupal_get_path('module', $module) . '/' . $module . '.info.yml';
-
-            $infoYaml = Yaml::decode(file_get_contents($fileLocation));
-
-            if (isset($infoYaml['dependencies']) === false) {
-                $this->enableModules((array) $module);
-
-                continue;
-            }
-
-            $cleanedDependencies = array_map(function ($dependency) {
-                return str_replace('drupal:', '', $dependency);
-            }, $infoYaml['dependencies']);
-
-            $this->enableModules(array_merge((array) $module, $cleanedDependencies));
+            $this->recursivelyResolveDependencies($module);
         }
+
+        $this->enableModules($this->modulesToInstall);
+
+        $this->modulesToInstall = [];
 
         return $this;
     }
 
-    public function installModulesWithDependencies(array $modules): self
+    private function recursivelyResolveDependencies(string $module): void
     {
-        foreach($modules as $module) {
-            $this->installModuleWithDependencies($module);
+        $dependencies = $this->getModuleDependencies($module);
+
+        $this->modulesToInstall = array_merge($this->modulesToInstall, $dependencies);
+
+        array_walk_recursive($dependencies, function (string $module): void {
+            $this->recursivelyResolveDependencies($module);
+        });
+    }
+
+    /** @return string[] */
+    private function getModuleDependencies(string $moduleName): array
+    {
+        /** @var array<string, array<string>> $infoYaml */
+        $infoYaml = $this->getModuleInfo($moduleName);
+
+        if (isset($infoYaml['dependencies']) === false) {
+            return [];
         }
 
-        return $this;
+        $dependencies = array_map(function (string $dependency): string {
+            return Dependency::createFromString($dependency)->getName();
+        }, $infoYaml['dependencies']);
+
+        return array_diff($dependencies, $this->modulesToInstall);
+    }
+
+    /** @return mixed */
+    private function getModuleInfo(string $module)
+    {
+        $path = null;
+
+        /** @phpstan-ignore-next-line */
+        if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
+            /** @phpstan-ignore-next-line */
+            $path = $this->container->get('extension.path.resolver')->getPath('module', $module);
+        } elseif (function_exists('drupal_get_path')) {
+            /** @phpstan-ignore-next-line */
+            $path = drupal_get_path('module', $module);
+        }
+
+        /** @phpstan-ignore-next-line */
+        if ($path === null) {
+            $this->fail('Could not find path for module: ' . $module);
+        }
+
+        $fileLocation = $path . '/' . $module . '.info.yml';
+
+        $yaml = file_get_contents($fileLocation);
+
+        if ($yaml === false) {
+            Assert::fail('Could not decode YAML when attempting to install `' . $module . '`');
+        }
+
+        return Yaml::decode($yaml);
+    }
+
+    private function handlePrefixes(string $moduleName): string
+    {
+        if (str_contains($moduleName, ':') === false) {
+            return $moduleName;
+        }
+
+        $prefix = collect(explode(':', $moduleName))->last();
+
+        if (is_string($prefix) === false) {
+            Assert::fail('Could not resolve dependencies for ' . $moduleName);
+        }
+
+        return $prefix;
     }
 }

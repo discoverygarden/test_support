@@ -11,11 +11,12 @@ class InstallsBlocksTest extends KernelTestBase
 {
     use InstallsBlocks;
 
+    /** @var string[] */
     protected static $modules = [
         'system',
     ];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -32,7 +33,7 @@ class InstallsBlocksTest extends KernelTestBase
         $entityTypeDefinitions = $this->container->get('entity_type.manager')->getDefinitions();
         $this->assertArrayNotHasKey('block', $entityTypeDefinitions);
 
-        $this->installBlocks('seven_branding');
+        $this->installBlocks('stark_messages');
 
         $this->assertTrue($moduleHandler->moduleExists('block'));
         $this->assertInstanceOf(ConfigEntityType::class, $this->container->get('entity_type.manager')->getDefinition('block'));
@@ -50,13 +51,14 @@ class InstallsBlocksTest extends KernelTestBase
 
         $this->assertEmpty($blockStorage->loadMultiple());
 
-        $this->installBlocks('seven_branding');
+        $this->installBlocks('stark_messages');
 
+        /** @var array<mixed> $blocks */
         $blocks = $blockStorage->loadMultiple();
 
         $this->assertNotEmpty($blocks);
 
-        $this->assertInstanceOf(Block::class, $blockStorage->load('seven_branding'));
+        $this->assertInstanceOf(Block::class, $blockStorage->load('stark_messages'));
     }
 
     /** @test */
@@ -72,11 +74,11 @@ class InstallsBlocksTest extends KernelTestBase
         $this->assertEmpty($blockStorage->loadMultiple());
 
         $this->installBlocks([
-            'seven_branding',
             'stark_messages',
+            'stark_second_block',
         ]);
 
-        $this->assertInstanceOf(Block::class, $blockStorage->load('seven_branding'));
         $this->assertInstanceOf(Block::class, $blockStorage->load('stark_messages'));
+        $this->assertInstanceOf(Block::class, $blockStorage->load('stark_second_block'));
     }
 }

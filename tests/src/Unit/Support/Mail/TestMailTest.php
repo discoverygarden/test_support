@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\test_support\Unit\Support;
+namespace Drupal\Tests\test_support\Unit\Support\Mail;
 
 use Drupal\Tests\test_support\Traits\Support\Mail\TestMail;
 use Drupal\Tests\UnitTestCase;
@@ -90,7 +90,11 @@ class TestMailTest extends UnitTestCase
     public function assert_param(): void
     {
         $user = $this->prophesize(User::class);
+
+        /** @phpstan-ignore-next-line */
         $user->id()->willReturn(1);
+
+        /** @phpstan-ignore-next-line */
         $user->getEmail()->willReturn('hello@example.com');
 
         $mail = TestMail::createFromValues([
@@ -103,7 +107,7 @@ class TestMailTest extends UnitTestCase
 
         $mail->assertParameter('message', 'mail message');
         $mail->assertParameter('article_title', 'arbitrary value');
-        $mail->assertParameter('user', $user->reveal(), function(User $user) {
+        $mail->assertParameter('user', $user->reveal(), function (User $user) {
             $this->assertEquals('hello@example.com', $user->getEmail());
         });
     }

@@ -20,12 +20,13 @@ class CreateNode extends QueueWorkerBase implements ContainerFactoryPluginInterf
     private $entityTypeManager;
 
     /**
-     * @param string|mixed $pluginId
+     * @param array<mixed> $configuration
+     * @param string $pluginId
      * @param mixed $pluginDefinition
      */
     public static function create(ContainerInterface $container, array $configuration, $pluginId, $pluginDefinition)
     {
-        return new self(
+        return new static(
             $configuration,
             $pluginId,
             $pluginDefinition,
@@ -33,6 +34,11 @@ class CreateNode extends QueueWorkerBase implements ContainerFactoryPluginInterf
         );
     }
 
+    /**
+     * @param array<mixed> $configuration
+     * @param string $pluginId
+     * @param mixed $pluginDefinition
+     */
     public function __construct(array $configuration, $pluginId, $pluginDefinition, EntityTypeManager $entityTypeManager)
     {
         parent::__construct($configuration, $pluginId, $pluginDefinition);
@@ -40,10 +46,14 @@ class CreateNode extends QueueWorkerBase implements ContainerFactoryPluginInterf
         $this->entityTypeManager = $entityTypeManager;
     }
 
-    /** @param array|mixed $data */
+    /** @param  array|mixed  $data */
     public function processItem($data): void
     {
-        if(isset($data['title']) === false) {
+        if (is_array($data) === false) {
+            return;
+        }
+
+        if (isset($data['title']) === false) {
             return;
         }
 
