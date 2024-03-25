@@ -102,7 +102,7 @@ if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
             $this->eventDispatcher = $eventDispatcher;
         }
 
-        public function addListener($eventName, $listener, $priority = 0)
+        public function addListener(string $eventName, $listener, int $priority = 0)
         {
             return $this->eventDispatcher->addListener($eventName, $listener, $priority);
         }
@@ -112,7 +112,7 @@ if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
             return $this->eventDispatcher->addSubscriber($subscriber);
         }
 
-        public function removeListener($eventName, $listener)
+        public function removeListener(string $eventName, $listener)
         {
             return $this->eventDispatcher->removeListener($eventName, $listener);
         }
@@ -122,7 +122,7 @@ if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
             return $this->eventDispatcher->removeSubscriber($subscriber);
         }
 
-        public function getListeners($eventName = null)
+        public function getListeners(string $eventName = null)
         {
             return $this->eventDispatcher->getListeners($eventName);
         }
@@ -134,12 +134,12 @@ if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
             return $this->eventDispatcher->dispatch($event, $eventName);
         }
 
-        public function getListenerPriority($eventName, $listener)
+        public function getListenerPriority(string $eventName, $listener)
         {
             return $this->eventDispatcher->getListenerPriority($eventName, $listener);
         }
 
-        public function hasListeners($eventName = null)
+        public function hasListeners(string $eventName = null)
         {
             return $this->eventDispatcher->hasListeners($eventName);
         }

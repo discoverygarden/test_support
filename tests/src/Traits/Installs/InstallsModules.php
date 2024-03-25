@@ -66,7 +66,7 @@ trait InstallsModules
             $path = $this->container->get('extension.path.resolver')->getPath('module', $module);
         } elseif (function_exists('drupal_get_path')) {
             /** @phpstan-ignore-next-line */
-            $path = drupal_get_path('module', $module);
+            $path = \Drupal::service('extension.list.module')->getPath($module);
         }
 
         /** @phpstan-ignore-next-line */
