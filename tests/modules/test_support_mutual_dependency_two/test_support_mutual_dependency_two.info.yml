@@ -1,10 +1,8 @@
 name: Test Traits Mutual Dependency Two
 type: module
 description: 'Supporting module for the Test Traits module'
-package: Custom
-version: VERSION
+package: Testing
 hidden: true
-core_version_requirement: ^8 || ^9
 dependencies:
-    - test_support_dependencies
-    - test_support_mutual_dependency_one
+    - test_support:test_support_dependencies
+    - test_support:test_support_mutual_dependency_one

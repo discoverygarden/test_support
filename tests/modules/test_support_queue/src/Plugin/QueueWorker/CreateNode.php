@@ -13,6 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   title = @Translation("Creates nodes based on the title data stored in the queue"),
  *   cron = {"time" = 10}
  * )
+ * @phpstan-consistent-constructor
  */
 class CreateNode extends QueueWorkerBase implements ContainerFactoryPluginInterface
 {
