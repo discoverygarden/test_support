@@ -1,5 +1,5 @@
 {
-    "name": "aidenbradley/test-support",
+    "name": "discoverygarden/test_support",
     "description": "Provides various traits to help test setup and assertions in Drupal Kernel tests",
     "type": "drupal-module",
     "require": {
@@ -13,6 +13,10 @@
         "sempro/phpunit-pretty-print": "^1.4",
         "brianium/paratest": "^6.9",
         "symplify/easy-coding-standard": "^11.5"
+    },
+    "replace": {
+      "drupal/test_support": "self.version",
+      "aidenbradley/test-support": "self.version"
     },
     "license": "MIT",
     "authors": [
