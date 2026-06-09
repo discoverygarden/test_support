@@ -144,12 +144,6 @@ trait InteractsWithSettings
     private function appRoot(): string
     {
         /** @phpstan-ignore-next-line */
-        if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
-            /** @phpstan-ignore-next-line */
-            return $this->container->getParameter('app.root');
-        }
-
-        /** @phpstan-ignore-next-line */
-        return $this->container->get('app.root');
+        return $this->container->getParameter('app.root');
     }
 }

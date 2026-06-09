@@ -62,7 +62,7 @@ class ResolveRequest implements ContainerInjectionInterface
             throw new NotFoundHttpException();
         }
 
-        if ($this->request->getContentType() !== 'json') {
+        if ($this->request->getContentTypeFormat() !== 'json') {
             throw new NotFoundHttpException();
         }
 

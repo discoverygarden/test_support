@@ -1,7 +1,5 @@
 name: Test Traits Cron
 type: module
 description: 'Supporting module for the Test Traits module'
-package: Custom
-version: VERSION
+package: Testing
 hidden: true
-core_version_requirement: ^8 || ^9

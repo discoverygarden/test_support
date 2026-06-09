@@ -58,16 +58,8 @@ trait InstallsModules
     /** @return mixed */
     private function getModuleInfo(string $module)
     {
-        $path = null;
-
         /** @phpstan-ignore-next-line */
-        if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
-            /** @phpstan-ignore-next-line */
-            $path = $this->container->get('extension.path.resolver')->getPath('module', $module);
-        } elseif (function_exists('drupal_get_path')) {
-            /** @phpstan-ignore-next-line */
-            $path = drupal_get_path('module', $module);
-        }
+        $path = $this->container->get('extension.path.resolver')->getPath('module', $module);
 
         /** @phpstan-ignore-next-line */
         if ($path === null) {

@@ -20,12 +20,7 @@ class InteractsWithSettingsTest extends KernelTestBase
 
         $container->set('kernel', $this->container->get('kernel'));
 
-        /** @phpstan-ignore-next-line */
-        if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
-            $container->setParameter('app.root', __DIR__);
-        } else {
-            $container->set('app.root', new Reference(__DIR__));
-        }
+        $container->setParameter('app.root', __DIR__);
 
         $this->container = $container;
     }
@@ -102,12 +97,7 @@ class InteractsWithSettingsTest extends KernelTestBase
     {
         $fixtureSiteDirectory = __DIR__ . '/__fixtures__';
 
-        /** @phpstan-ignore-next-line */
-        if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
-            $this->container->setParameter('app.root', $fixtureSiteDirectory);
-        } else {
-            $this->container->set('app.root', new Reference($fixtureSiteDirectory));
-        }
+        $this->container->setParameter('app.root', $fixtureSiteDirectory);
 
         //
 
@@ -121,12 +111,7 @@ class InteractsWithSettingsTest extends KernelTestBase
     /** @test */
     public function setting_settings_location_refreshes_settings(): void
     {
-        /** @phpstan-ignore-next-line */
-        if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
-            $this->container->setParameter('app.root', __DIR__);
-        } else {
-            $this->container->set('app.root', new Reference(__DIR__));
-        }
+        $this->container->setParameter('app.root', __DIR__);
 
         $this->assertEmpty(
             $this->getSettings()->get('config_sync_directory')

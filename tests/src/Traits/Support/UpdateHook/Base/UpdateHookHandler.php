@@ -6,6 +6,9 @@ use Drupal\Tests\test_support\Traits\Support\Exceptions\UpdateHookFailed;
 use Drupal\Tests\test_support\Traits\Support\UpdateHook\Contracts\HookHandler;
 use ReflectionFunction;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 abstract class UpdateHookHandler implements HookHandler
 {
     /** @var string */

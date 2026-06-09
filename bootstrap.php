@@ -1,7 +1,6 @@
 <?php
 
-$finder = new \DrupalFinder\DrupalFinder();
-$finder->locateRoot(getcwd());
+$finder = new \DrupalFinder\DrupalFinderComposerRuntime();
 
 /** @var \Composer\Autoload\ClassLoader $testAutoloader */
 $testAutoloader = require __DIR__ . '/vendor/autoload.php';

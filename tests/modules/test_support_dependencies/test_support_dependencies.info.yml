@@ -1,13 +1,11 @@
 name: Test Traits Dependencies
 type: module
 description: 'Supporting module for the Test Traits module'
-package: Custom
-version: VERSION
+package: Testing
 hidden: true
-core_version_requirement: ^8 || ^9
 dependencies:
-  - system
-  - link
-  - text
-  - file
-  - image
+  - drupal:system
+  - drupal:link
+  - drupal:text
+  - drupal:file
+  - drupal:image
