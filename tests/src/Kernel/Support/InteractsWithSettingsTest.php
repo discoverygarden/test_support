@@ -19,6 +19,7 @@ class InteractsWithSettingsTest extends KernelTestBase
         $container = new ContainerBuilder();
 
         $container->set('kernel', $this->container->get('kernel'));
+        $container->set('request_stack', $this->container->get('request_stack'));
 
         $container->setParameter('app.root', __DIR__);
 
@@ -43,7 +44,7 @@ class InteractsWithSettingsTest extends KernelTestBase
             $this->assertEquals($expectedConfigurationDirectory, $this->getConfigurationDirectory());
         } else {
             /** @phpstan-ignore-next-line */
-            $expectedConfigurationDirectory = $this->container->get('app.root') . '/test/config/directory';
+            $expectedConfigurationDirectory = $this->container->getParameter('app.root') . '/test/config/directory';
 
             $this->assertEquals($expectedConfigurationDirectory, $this->getConfigurationDirectory());
         }

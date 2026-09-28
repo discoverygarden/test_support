@@ -9,6 +9,7 @@ use Drupal\language\EventSubscriber\ConfigSubscriber;
 use Drupal\node\Routing\RouteSubscriber;
 use Drupal\system\TimeZoneResolver;
 use Drupal\Tests\test_support\Traits\Support\WithoutEventSubscribers;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class WithoutEventSubscribersTest extends KernelTestBase
@@ -169,9 +170,9 @@ class WithoutEventSubscribersTest extends KernelTestBase
         $this->assertNotListening('language.config_subscriber');
     }
 
-    private function eventDispatcher(): ContainerAwareEventDispatcher
+    private function eventDispatcher(): EventDispatcherInterface
     {
-        if ($this->eventDispatcher instanceof ContainerAwareEventDispatcher === false) {
+        if ((!$this->eventDispatcher instanceof EventDispatcherInterface)) {
             $this->eventDispatcher = $this->container->get('event_dispatcher');
         }
 
