@@ -35,8 +35,9 @@ class InstallsVocabulariesTest extends KernelTestBase
         $this->assertInstanceOf(Vocabulary::class, $this->container->get('entity_type.manager')->getStorage('taxonomy_vocabulary')->load('tags'));
     }
 
-    private function moduleHandler() : ModuleHandlerInterface {
-      return $this->container->get('module_handler');
+    private function moduleHandler(): ModuleHandlerInterface
+    {
+        return $this->container->get('module_handler');
     }
 
     /** @test */

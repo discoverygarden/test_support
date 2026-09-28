@@ -2,22 +2,18 @@
 
 namespace Drupal\Tests\test_support\Kernel\Support;
 
-use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Config\ConfigEvents;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\language\EventSubscriber\ConfigSubscriber;
 use Drupal\node\Routing\RouteSubscriber;
 use Drupal\system\TimeZoneResolver;
 use Drupal\Tests\test_support\Traits\Support\WithoutEventSubscribers;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class WithoutEventSubscribersTest extends KernelTestBase
 {
     use WithoutEventSubscribers;
-
-    /** @var ContainerAwareEventDispatcher|null */
-    private $eventDispatcher;
 
     /** @test */
     public function assert_not_listening(): void
@@ -172,10 +168,6 @@ class WithoutEventSubscribersTest extends KernelTestBase
 
     private function eventDispatcher(): EventDispatcherInterface
     {
-        if ((!$this->eventDispatcher instanceof EventDispatcherInterface)) {
-            $this->eventDispatcher = $this->container->get('event_dispatcher');
-        }
-
-        return $this->eventDispatcher;
+        return $this->container->get('event_dispatcher');
     }
 }

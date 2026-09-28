@@ -159,11 +159,11 @@ trait WithoutEventSubscribers
             return $listener->_serviceId;
         }
 
-      /** @phpstan-ignore-next-line */
-      if ($this->container->has('Drupal\Component\DependencyInjection\ReverseContainer')) {
         /** @phpstan-ignore-next-line */
-        return $this->container->get('Drupal\Component\DependencyInjection\ReverseContainer')->getId($listener);
-      }
+        if ($this->container->has('Drupal\Component\DependencyInjection\ReverseContainer')) {
+            /** @phpstan-ignore-next-line */
+            return $this->container->get('Drupal\Component\DependencyInjection\ReverseContainer')->getId($listener);
+        }
 
         /** @phpstan-ignore-next-line */
         if ($this->container->has('Drupal\Core\DependencyInjection\ReverseContainer')) {
@@ -172,7 +172,6 @@ trait WithoutEventSubscribers
         }
 
         /** @phpstan-ignore-next-line */
-        /** @var \Symfony\Component\HttpKernel\HttpKernelInterface $serviceMap */
         $serviceMap = $this->container->get('kernel')->getServiceIdMapping();
 
         /** @phpstan-ignore-next-line */

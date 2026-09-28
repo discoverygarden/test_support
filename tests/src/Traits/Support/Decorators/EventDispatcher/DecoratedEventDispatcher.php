@@ -26,22 +26,22 @@ class DecoratedEventDispatcher implements TestEventDispatcher
     }
 
     // @phpstan-ignore-next-line
-    public function addListener(string $eventName, callable $listener, int $priority = 0) : void
+    public function addListener(string $eventName, callable $listener, int $priority = 0): void
     {
         $this->eventDispatcher->addListener($eventName, $listener, $priority);
     }
 
-    public function addSubscriber(EventSubscriberInterface $subscriber) : void
+    public function addSubscriber(EventSubscriberInterface $subscriber): void
     {
         $this->eventDispatcher->addSubscriber($subscriber);
     }
 
-    public function removeListener(string $eventName, callable $listener) : void
+    public function removeListener(string $eventName, callable $listener): void
     {
         $this->eventDispatcher->removeListener($eventName, $listener);
     }
 
-    public function removeSubscriber(EventSubscriberInterface $subscriber) : void
+    public function removeSubscriber(EventSubscriberInterface $subscriber): void
     {
         $this->eventDispatcher->removeSubscriber($subscriber);
     }
@@ -81,5 +81,4 @@ class DecoratedEventDispatcher implements TestEventDispatcher
     {
         $this->firedEvents[$eventName] = $event;
     }
-
 }

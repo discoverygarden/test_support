@@ -38,8 +38,9 @@ class InstallsBlocksTest extends KernelTestBase
         $this->assertInstanceOf(ConfigEntityType::class, $this->container->get('entity_type.manager')->getDefinition('block'));
     }
 
-    private function moduleHandler() : ModuleHandlerInterface {
-      return $this->container->get('module_handler');
+    private function moduleHandler(): ModuleHandlerInterface
+    {
+        return $this->container->get('module_handler');
     }
 
     /** @test */

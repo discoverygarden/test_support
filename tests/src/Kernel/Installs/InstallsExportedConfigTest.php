@@ -85,12 +85,12 @@ class InstallsExportedConfigTest extends KernelTestBase
     /** @test */
     public function installs_module_dependency(): void
     {
-      // XXX: `::installViews()` makes use of `::enableModules()`; however,
-      // `::enableModules()` explicitly does not ensure that dependencies are
-      // enabled, so, it is possible to be in the situation that `image` is
-      // enabled without its `file` dependency being enabled. Let's just enable
-      // `file`, for now.
-      $this->enableModules(['file']);
+        // XXX: `::installViews()` makes use of `::enableModules()`; however,
+        // `::enableModules()` explicitly does not ensure that dependencies are
+        // enabled, so, it is possible to be in the situation that `image` is
+        // enabled without its `file` dependency being enabled. Let's just enable
+        // `file`, for now.
+        $this->enableModules(['file']);
         $this->setFixtureConfigDirectory('config_dependencies');
 
         $this->disableModules([
