@@ -6,13 +6,13 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         -  name: Checkout module
-           uses: actions/checkout@v2
+           uses: actions/checkout@v7
            with:
              path: modules/test_support
 
         -  name: Cache module - Production Build
            id: build_production_module_cache
-           uses: actions/cache@v3
+           uses: actions/cache@v6
            with:
              path: modules/test_support/vendor
              key: ${{ runner.os }}-build-production-module-composer-${{ hashFiles('modules/test_support/composer.lock') }}
@@ -29,13 +29,13 @@ jobs:
       runs-on: ubuntu-latest
       steps:
           -  name: Checkout module
-             uses: actions/checkout@v2
+             uses: actions/checkout@v7
              with:
                  path: modules/test_support
 
           -  name: Cache module - Development Build
              id: build_development_module_cache
-             uses: actions/cache@v3
+             uses: actions/cache@v6
              with:
                  path: modules/test_support/vendor
                  key: ${{ runner.os }}-build-development-module-composer-${{ hashFiles('modules/test_support/composer.lock') }}
@@ -53,7 +53,7 @@ jobs:
     needs: build_development_module
     strategy:
         matrix:
-            php-versions: [ '7.3' ]
+            php-versions: [ '8.4' ]
     steps:
         -   name: Setup PHP v${{ matrix.php-versions }}, with composer and extensions
             uses: shivammathur/setup-php@v2
@@ -62,12 +62,12 @@ jobs:
                 coverage: none
 
         -   name: Checkout module
-            uses: actions/checkout@v2
+            uses: actions/checkout@v7
             with:
                 path: modules/test_support
 
-        -   name: Retreive module build cache
-            uses: actions/cache@v3
+        -   name: Retrieve module build cache
+            uses: actions/cache@v6
             with:
                 path: modules/test_support/vendor
                 key: ${{ runner.os }}-build-development-module-composer-${{ hashFiles('modules/test_support/composer.lock') }}
@@ -75,7 +75,7 @@ jobs:
                 fail-on-cache-miss: true
 
         -   name: PHP Mess Detector
-            uses: php-actions/phpmd@v1
+            uses: php-actions/phpmd@v2
             with:
                 php_version: ${{ matrix.php-versions }}
                 path: modules/test_support/tests/src/Traits
@@ -92,17 +92,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        drupal-core: ['9.1.0', '9.2.0', '9.3.0', '9.4.0', '9.5.0', '10.0.0']
+        drupal-core: ['11.3.18']
     steps:
         -   name: Checkout Drupal core v${{ matrix.drupal-core }}
-            uses: actions/checkout@v2
+            uses: actions/checkout@v7
             with:
                 repository: drupal/drupal
                 ref: ${{ matrix.drupal-core }}
 
         -   name: Cache Drupal v${{ matrix.drupal-core }}
             id: build_drupal_cache
-            uses: actions/cache@v3
+            uses: actions/cache@v6
             with:
                 path: vendor
                 key: ${{ runner.os }}-drupal-build-composer-v${{ matrix.drupal-core }}-${{ hashFiles('./composer.lock') }}
@@ -120,12 +120,12 @@ jobs:
                 phpspec/prophecy-phpunit:^2 --with-all-dependencies
 
         - name: Checkout module
-          uses: actions/checkout@v2
+          uses: actions/checkout@v7
           with:
             path: modules/test_support
 
-        - name: Retreive module build cache
-          uses: actions/cache@v3
+        - name: Retrieve module build cache
+          uses: actions/cache@v6
           with:
             path: modules/test_support/vendor
             key: ${{ runner.os }}-build-development-module-composer-${{ hashFiles('modules/test_support/composer.lock') }}
@@ -135,15 +135,15 @@ jobs:
         - name: Run static analysis
           run: cd modules/test_support; composer test:types
 
-  drupal-10-matrix:
+  drupal-11-matrix:
     name: Drupal ${{ matrix.drupal-core }} - PHP ${{ matrix.php-versions }}
     runs-on: ubuntu-latest
     needs: [ sanity_check, static_analysis_matrix ]
     strategy:
       fail-fast: false
       matrix:
-        drupal-core: [ '10.0.0' ]
-        php-versions: [ '8.2', '8.1.6' ]
+        drupal-core: [ '11.3.18' ]
+        php-versions: [ '8.4', '8.5' ]
     steps:
       - name: Setup PHP v${{ matrix.php-versions }}, with composer and extensions
         uses: shivammathur/setup-php@v2
@@ -152,14 +152,14 @@ jobs:
           coverage: none
 
       - name: Checkout Drupal core v${{ matrix.drupal-core }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
         with:
           repository: drupal/drupal
           ref: ${{ matrix.drupal-core }}
 
       -  name: Cache Drupal v${{ matrix.drupal-core }}
          id: build_drupal_cache
-         uses: actions/cache@v3
+         uses: actions/cache@v6
          with:
            path: vendor
            key: ${{ runner.os }}-drupal-build-composer-v${{ matrix.drupal-core }}-${{ hashFiles('./composer.lock') }}
@@ -177,73 +177,12 @@ jobs:
           phpspec/prophecy-phpunit:^2 --with-all-dependencies
 
       - name: Checkout module
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
         with:
           path: modules/test_support
 
-      - name: Retreive module build cache
-        uses: actions/cache@v3
-        with:
-          path: modules/test_support/vendor
-          key: ${{ runner.os }}-build-development-module-composer-${{ hashFiles('modules/test_support/composer.lock') }}
-          restore-keys: ${{ runner.os }}-build-development-module-composer-
-          fail-on-cache-miss: true
-
-      - name: Tests
-        run: |
-            modules/test_support/vendor/bin/paratest \
-            --path modules/test_support/tests \
-            -c modules/test_support/phpunit.xml \
-            --runner WrapperRunner
-
-  drupal-9-matrix:
-    name: Drupal ${{ matrix.drupal-core }} - PHP ${{ matrix.php-versions }}
-    runs-on: ubuntu-latest
-    needs: [ sanity_check, static_analysis_matrix ]
-    strategy:
-      fail-fast: false
-      matrix:
-        drupal-core: [ '9.5.0', '9.1.0' ]
-        php-versions: [ '7.3' ]
-    steps:
-      - name: Setup PHP v${{ matrix.php-versions }}, with composer and extensions
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-versions }}
-          coverage: none
-
-      - name: Checkout Drupal core v${{ matrix.drupal-core }}
-        uses: actions/checkout@v2
-        with:
-          repository: drupal/drupal
-          ref: ${{ matrix.drupal-core }}
-
-      - name: Cache Drupal v${{ matrix.drupal-core }}
-        id: build_drupal_cache
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: ${{ runner.os }}-drupal-build-composer-v${{ matrix.drupal-core }}-${{ hashFiles('./composer.lock') }}
-          restore-keys: ${{ runner.os }}-drupal-build-composer-v
-
-      - if: steps.build_drupal_cache.outputs.cache-hit != 'true'
-        name: Install Drupal core dependencies
-        run: composer --no-interaction --no-progress --prefer-dist --optimize-autoloader install
-
-      - if: steps.build_drupal_cache.outputs.cache-hit != 'true'
-        name: Install drupal/core-dev with dependencies
-        run: |
-            composer --no-interaction --no-progress require --dev \
-            drupal/core-dev:${{ matrix.drupal-core }} \
-            phpspec/prophecy-phpunit:^2 --with-all-dependencies
-
-      - name: Checkout module
-        uses: actions/checkout@v2
-        with:
-          path: modules/test_support
-
-      - name: Retreive module build cache
-        uses: actions/cache@v3
+      - name: Retrieve module build cache
+        uses: actions/cache@v6
         with:
           path: modules/test_support/vendor
           key: ${{ runner.os }}-build-development-module-composer-${{ hashFiles('modules/test_support/composer.lock') }}
