@@ -4,6 +4,7 @@ namespace Drupal\Tests\test_support\Kernel\Installs;
 
 use Drupal\block\Entity\Block;
 use Drupal\Core\Config\Entity\ConfigEntityType;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\Tests\test_support\Traits\Installs\InstallsBlocks;
 
@@ -26,17 +27,19 @@ class InstallsBlocksTest extends KernelTestBase
     /** @test */
     public function installing_block_prepares_dependencies(): void
     {
-        $moduleHandler = $this->container->get('module_handler');
-
-        $this->assertFalse($moduleHandler->moduleExists('block'));
+        $this->assertFalse($this->moduleHandler()->moduleExists('block'));
 
         $entityTypeDefinitions = $this->container->get('entity_type.manager')->getDefinitions();
         $this->assertArrayNotHasKey('block', $entityTypeDefinitions);
 
         $this->installBlocks('stark_messages');
 
-        $this->assertTrue($moduleHandler->moduleExists('block'));
+        $this->assertTrue($this->moduleHandler()->moduleExists('block'));
         $this->assertInstanceOf(ConfigEntityType::class, $this->container->get('entity_type.manager')->getDefinition('block'));
+    }
+
+    private function moduleHandler() : ModuleHandlerInterface {
+      return $this->container->get('module_handler');
     }
 
     /** @test */

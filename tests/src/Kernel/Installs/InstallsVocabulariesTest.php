@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\test_support\Kernel\Installs;
 
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\Tests\test_support\Traits\Installs\InstallsVocabularies;
@@ -20,9 +21,7 @@ class InstallsVocabulariesTest extends KernelTestBase
     /** @test */
     public function installing_vocabulary_sets_up_dependencies(): void
     {
-        $moduleHandler = $this->container->get('module_handler');
-
-        $this->assertFalse($moduleHandler->moduleExists('taxonomy'));
+        $this->assertFalse($this->moduleHandler()->moduleExists('taxonomy'));
 
         $entityTypeDefinitions = $this->container->get('entity_type.manager')->getDefinitions();
         $this->assertArrayNotHasKey('taxonomy_vocabulary', $entityTypeDefinitions);
@@ -32,8 +31,12 @@ class InstallsVocabulariesTest extends KernelTestBase
         $entityTypeDefinitions = $this->container->get('entity_type.manager')->getDefinitions();
         $this->assertArrayHasKey('taxonomy_vocabulary', $entityTypeDefinitions);
 
-        $this->assertTrue($moduleHandler->moduleExists('taxonomy'));
+        $this->assertTrue($this->moduleHandler()->moduleExists('taxonomy'));
         $this->assertInstanceOf(Vocabulary::class, $this->container->get('entity_type.manager')->getStorage('taxonomy_vocabulary')->load('tags'));
+    }
+
+    private function moduleHandler() : ModuleHandlerInterface {
+      return $this->container->get('module_handler');
     }
 
     /** @test */
