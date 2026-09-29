@@ -35,4 +35,5 @@ jobs:
         run: ddev phpstan -c phpstan.neon.dist
         continue-on-error: true
       - name: Tests
-        run: ddev composer exec paratest -- -c phpunit.xml --runner WrapperRunner tests
+#        run: ddev composer exec paratest -- -c phpunit.xml --runner WrapperRunner tests
+        run: ddev composer exec -- phpunit
