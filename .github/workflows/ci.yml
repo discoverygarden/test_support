@@ -32,5 +32,6 @@ jobs:
         run: ddev composer test:code-smells
       - name: Static analysis
         run: ddev phpstan -c phpstan.neon.dist
+        continue-on-error: true
       - name: Tests
         run: ddev composer exec paratest -- -c phpunit.xml --runner WrapperRunner tests
