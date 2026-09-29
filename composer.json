@@ -3,13 +3,13 @@
     "description": "Provides various traits to help test setup and assertions in Drupal Kernel tests",
     "type": "drupal-module",
     "require": {
-        "php": ">=8.3.0",
+        "php": ">=8.4.0",
         "opis/closure": "^3.6",
         "nesbot/carbon": "^2.69 || ^3",
         "illuminate/collections": ">=8.83"
     },
     "require-dev": {
-        "mglaman/phpstan-drupal": "^1.1",
+        "mglaman/phpstan-drupal": "^2",
         "brianium/paratest": "^7",
         "symplify/easy-coding-standard": "^11.5",
         "phpmd/phpmd": "@stable",
