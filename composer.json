@@ -10,10 +10,10 @@
     },
     "require-dev": {
         "mglaman/phpstan-drupal": "^1.1",
-        "sempro/phpunit-pretty-print": "^1.4",
-        "brianium/paratest": "^6.9",
+        "brianium/paratest": "^7",
         "symplify/easy-coding-standard": "^11.5",
-        "phpmd/phpmd": "@stable"
+        "phpmd/phpmd": "@stable",
+        "phpunit/phpunit": "^11"
     },
     "replace": {
       "drupal/test_support": "self.version",
@@ -34,7 +34,7 @@
             "infection/extension-installer": true
         },
         "platform": {
-            "php": "8.3"
+            "php": "8.4"
         }
     },
     "scripts": {
