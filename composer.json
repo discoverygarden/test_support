@@ -20,12 +20,6 @@
       "aidenbradley/test-support": "self.version"
     },
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Aiden Bradley",
-            "email": "mraidenbradley@gmail.com"
-        }
-    ],
     "minimum-stability": "stable",
     "config": {
         "allow-plugins": {
@@ -39,10 +33,13 @@
     },
     "scripts": {
         "fix:code-smells": "vendor/bin/ecs --fix",
-
         "test:code-smells": "vendor/bin/ecs",
-
         "test:types": "php -d memory_limit=4G vendor/bin/phpstan analyse -c phpstan.neon",
         "test:mess": "vendor/bin/phpmd tests/src/Traits ansi phpmd.xml"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        }
     }
 }
