@@ -160,6 +160,12 @@ trait WithoutEventSubscribers
         }
 
         /** @phpstan-ignore-next-line */
+        if ($this->container->has('Drupal\Component\DependencyInjection\ReverseContainer')) {
+            /** @phpstan-ignore-next-line */
+            return $this->container->get('Drupal\Component\DependencyInjection\ReverseContainer')->getId($listener);
+        }
+
+        /** @phpstan-ignore-next-line */
         if ($this->container->has('Drupal\Core\DependencyInjection\ReverseContainer')) {
             /** @phpstan-ignore-next-line */
             return $this->container->get('Drupal\Core\DependencyInjection\ReverseContainer')->getId($listener);

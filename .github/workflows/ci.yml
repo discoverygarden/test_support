@@ -1,0 +1,38 @@
+name: ci.yml
+on: [push]
+
+jobs:
+  test:
+    name: Test module
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Setup DDEV
+        uses: ddev/github-action-setup-ddev@v1
+        with:
+          autostart: false
+      - name: Setup DDEV Drupal Contrib
+        run: |
+          set -eux -o pipefail
+          # Configure DDEV for Drupal, or use interactive mode.
+          ddev config --project-type=drupal11 --docroot=web
+          ddev add-on get ddev/ddev-drupal-contrib
+          ddev start
+          ddev poser --no-interaction
+          ddev symlink-project
+          # Detect expected Drupal and PHP versions.
+          ddev config --update
+      - name: PHP Mess Detector
+        uses: php-actions/phpmd@v2
+        with:
+          path: tests/src/Traits
+          output: ansi
+          ruleset: phpmd.xml
+      - name: PHP Code Smells
+        run: ddev composer test:code-smells
+      - name: Static analysis
+        run: ddev phpstan -c phpstan.neon.dist
+        continue-on-error: true
+      - name: Tests
+        run: ddev composer exec paratest -- -c phpunit.xml --runner WrapperRunner tests

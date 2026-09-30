@@ -3,28 +3,23 @@
     "description": "Provides various traits to help test setup and assertions in Drupal Kernel tests",
     "type": "drupal-module",
     "require": {
-        "php": ">=8.3.0",
+        "php": ">=8.4.0",
         "opis/closure": "^3.6",
-        "nesbot/carbon": "^2.69",
+        "nesbot/carbon": "^2.69 || ^3",
         "illuminate/collections": ">=8.83"
     },
     "require-dev": {
-        "mglaman/phpstan-drupal": "^1.1",
-        "sempro/phpunit-pretty-print": "^1.4",
-        "brianium/paratest": "^6.9",
-        "symplify/easy-coding-standard": "^11.5"
+        "mglaman/phpstan-drupal": "^2",
+        "brianium/paratest": "^7",
+        "symplify/easy-coding-standard": "^11.5",
+        "phpmd/phpmd": "@stable",
+        "phpunit/phpunit": "^11"
     },
     "replace": {
       "drupal/test_support": "self.version",
       "aidenbradley/test-support": "self.version"
     },
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Aiden Bradley",
-            "email": "mraidenbradley@gmail.com"
-        }
-    ],
     "minimum-stability": "stable",
     "config": {
         "allow-plugins": {
@@ -33,15 +28,18 @@
             "infection/extension-installer": true
         },
         "platform": {
-            "php": "8.3"
+            "php": "8.4"
         }
     },
     "scripts": {
         "fix:code-smells": "vendor/bin/ecs --fix",
-
         "test:code-smells": "vendor/bin/ecs",
-
         "test:types": "php -d memory_limit=4G vendor/bin/phpstan analyse -c phpstan.neon",
         "test:mess": "vendor/bin/phpmd tests/src/Traits ansi phpmd.xml"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        }
     }
 }

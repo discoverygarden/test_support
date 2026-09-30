@@ -121,13 +121,11 @@ class InteractsWithQueuesTest extends KernelTestBase
     /** @return object */
     private function customQueueFactory()
     {
+        $container = $this->container;
         return new class() extends QueueFactory {
             public function __construct()
             {
-                parent::__construct(Settings::getInstance());
-
-                /** @phpstan-ignore-next-line */
-                $this->container = \Drupal::getContainer();
+                parent::__construct(Settings::getInstance(), \Drupal::getContainer());
             }
 
             public function get($name, $reliable = false): QueueInterface
